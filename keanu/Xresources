@@ -1,0 +1,111 @@
+!!
+! Keybinds
+!!
+
+xlogin*login.translations: #override \
+<Key>F1: set-session-argument(failsafe) finish-field()\n\
+<Key>Left: move-backward-character()\n\
+<Key>Right: move-forward-character()\n\
+<Key>Home: move-to-begining()\n\
+<Key>End: move-to-end()\n\
+Ctrl<Key>KP_Enter: set-session-argument(failsafe) finish-field()\n\
+<Key>KP_Enter: set-session-argument() finish-field()\n\
+Ctrl<Key>Return: set-session-argument(failsafe) finish-field()\n\
+<Key>Return: set-session-argument() finish-field()
+
+! Motif Look & Feel
+*lookAndFeel: motif
+
+!!
+! Basic Colors
+!!
+
+*.foreground: #e60451
+*.Foreground: #e60451
+*.background: #000000
+*.Background: #000000
+*.activeBackground: #000000
+*.activeForeground: #e60451
+*.cursorColor: #e60451
+
+!!
+! Prompts
+!!
+
+! Strings
+xlogin*greeting: osiris
+xlogin*namePrompt: user:
+xlogin*passwdPrompt: pass:
+xlogin*fail: Login incorrect or forbidden
+
+! Fontfaces
+xlogin*greetFace:       Spleen-18:style=Bold:dpi=96
+xlogin*face:            Spleen-16:style=Regular:dpi=96
+xlogin*promptFace:      Spleen-16:style=Regular:dpi=96
+xlogin*failFace:        Spleen-12:style=Regular:dpi=96
+
+!!
+! XConsole
+!!
+
+xconsole*font:      -*-spleen-*-*-*-*-16-*-*-*-*-*-*-*
+xconsole*scrollBar: false
+xconsole*borderWidth: 1 
+xconsole*borderColor: #e60451
+xconsole*iconic:    true
+xconsole*verbose:   true
+
+!!
+! XMessage
+!!
+
+xmessage*background: #000000
+xmessage*foreground: #e60451
+xmessage.borderWidth: 1
+xmessage*borderColor: #e60451
+xmessage*message.scrollHorizontal: Never
+xmessage*message.scrollVertical: Never
+xmessage*timeout: 0
+xmessage*printValue: false
+xmessage*font:      -*-spleen-*-*-*-*-12-*-*-*-*-*-*-*
+
+!!
+! XClock
+!!
+
+xclock*borderWidth: 1 
+xclock*borderColor: #e60451
+xclock*majorColor: #000000
+xclock*minorColor: #e60451
+xclock*hourColor: #e60451
+xclock*minuteColor: #e60451
+xclock*secondColor: #e60451
+
+!!
+! XLogin
+!!
+
+! border/shadow
+xlogin*borderWidth: 1
+xlogin*borderColor: #e60451
+
+! Login Box
+xlogin.Login.sepWidth: 1
+xlogin.Login.frameWidth: 0
+xlogin.Login.innerFramesWidth: 0
+xlogin.Login.echoPasswd: true
+xlogin.Login.hiColor: #000000
+xlogin.Login.shdColor: #e60451
+xlogin.Login.greetColor: #e60451
+xlogin.Login.failColor: #e60451
+xlogin.Login.promptColor: #e60451
+xlogin.Login.cursorColor: #e60451
+xlogin.Login.inpColor: #000000
+xlogin.Login.foreground: #e60451
+xlogin.Login.background: #000000
+xlogin*useShape: false
+
+! Login Logo
+xlogin*logoFileName: /etc/X11/xenodm/pixmaps/malelogin.xpm
+xlogin*logoPadding: 10
+

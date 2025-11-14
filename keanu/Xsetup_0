@@ -1,0 +1,112 @@
+#!/bin/ksh
+
+# Define variables at the top for easy access
+readonly XCLOCK_WIDTH=132
+readonly XCLOCK_HEIGHT=132
+readonly XCLOCK_YOFFSET=32
+readonly XMESG_WIDTH=312
+readonly XMESG_HEIGHT=64
+readonly XMESG_YOFFSET=256
+readonly XCONSOLE_WIDTH=512
+readonly XCONSOLE_HEIGHT=112
+readonly XCONSOLE_YOFFSET=600
+
+# Set Prefix for commands used
+prefix="/usr/X11R6"
+exec_prefix="${prefix}"
+
+# Function to get screen dimensions
+function get_screen_dimension {
+    typeset dimension=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | head -n1)
+    case $1 in
+        0) echo "${dimension%x*}" ;;
+        1) echo "${dimension#*x}" ;;
+        *) echo "Invalid argument. Use 0 for width or 1 for height." ;;
+    esac
+}
+
+# Function to load environment
+function load_environment {
+    set -A filees "$@"
+    for file in "${files[@]}"; do
+	[ -f "$file" ] && . "$file"
+    done
+}
+
+# Function to load resources
+function load_resources {
+    set -A resources "$@"
+    for resource in "${resources[@]}"; do
+	[ -f "$resource" ] && xrdb -merge "$xresource"
+    done
+}
+
+# Function to manage autostarts
+function manage_autostarts {
+    for process in "$@"; do
+        process_name="${process% *}"
+        if pgrep -x "$process_name" > /dev/null; then
+            pkill "$process_name"
+        fi
+        eval "$process" &
+    done
+}
+
+# Function to spawn client windows with organization
+function spawn_client_windows {
+    typeset app=$1
+    typeset width=$2
+    typeset height=$3
+    typeset xpos=$4
+    typeset yoffset=$5
+    $app -geometry "${width}"x"${height}"+"${xpos}"+"${yoffset}" &
+}
+
+# Load in environment & resources
+load_environment /etc/xprofile
+load_resources /etc/X11/xenodm/Xresources
+
+# Autostarts
+manage_autostarts "xrandr --output default --dpi 96" \
+                  "xset b on" \
+                  "xset fp+ /usr/local/share/fonts/spleen" \
+                  "/usr/local/bin/feh --bg-fill /etc/X11/xenodm/wallpaper.png"
+
+# Grab the Screen Dimensions and save into globals
+XWIDTH=$(get_screen_dimension 0)
+XHEIGHT=$(get_screen_dimension 1)
+
+# Calculate
+XCONSOLE_XPOS=$((($XWIDTH - $XCONSOLE_WIDTH) / 2))
+XCLOCK_XPOS=$((($XWIDTH - $XCLOCK_WIDTH) / 2))
+XMESG_XPOS=$((($XWIDTH - $XMESG_WIDTH) / 2))
+
+# Spawn client windows with organization
+spawn_client_windows "xconsole" $XCONSOLE_WIDTH $XCONSOLE_HEIGHT $XCONSOLE_XPOS $XCONSOLE_YOFFSET
+spawn_client_windows "xclock -render -sharp -update 1" $XCLOCK_WIDTH $XCLOCK_HEIGHT $XCLOCK_XPOS $XCLOCK_YOFFSET
+
+# Menu Event Loop
+(
+    while true; do
+        xmessage "System Menu" \
+                 -buttons "SLEEP[]":20,"RESTART[]":21,"SHUTDOWN[]":22,"SCROT[]":23 "" \
+                 -geometry ${XMESG_WIDTH}x${XMESG_HEIGHT}+${XMESG_XPOS}-${XMESG_YOFFSET}
+        typeset action=$?
+        logger "Xmessage said: $action"
+
+        case ${action} in
+	    20) /usr/sbin/zzz ;;
+	    21) xsetroot -cursor_name watch; /sbin/shutdown -r now ;;
+	    22) xsetroot -cursor_name watch; /sbin/shutdown -p now ;;
+	    23) /usr/local/bin/scrot \
+		    -f -z -o -q 100 -Z 0 \
+		    -F /tmp/xenodm.png; \
+		logger "Took Screenshot at /tmp/xenodm.png" >/dev/console ;;
+	    *) logger "XMessage said: WAITING" >/dev/console ;;
+        esac
+
+        if [ -z "$(pgrep -U root xconsole)" ]; then
+            break;
+        fi
+    done
+) &
